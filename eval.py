@@ -6,16 +6,24 @@ from argparse import ArgumentDefaultsHelpFormatter
 code_name = [ "BG", "Wo", "Se", "ko", "LS", "mj", "we", "py" ]
 
 eval_orig_data = [
-        ("data/rand128.dmp", 20000),
-        ("data/rand256.dmp", 10000),
-        ("data/rand512.dmp", 5000),
+        ("data/ff128.dmp", 20000),
+        ("data/ff256.dmp", 10000),
+        ("data/ff512.dmp", 5000),
+        ("data/ff768.dmp", 3000),
+        ("data/ff1024.dmp", 2000),
+        ("data/ff1536.dmp", 1500),
+        ("data/ff2048.dmp", 1000),
         ("data/rand1024.dmp", 2000),
         ]
 
 eval_encoded_data = [
-        ("data/rand128en-{}.txt", 20000),
-        ("data/rand256en-{}.txt", 10000),
-        ("data/rand512en-{}.txt", 5000),
+        ("data/ff128en-{}.txt", 10000),
+        ("data/ff256en-{}.txt", 5000),
+        ("data/ff512en-{}.txt", 2500),
+        ("data/ff768en-{}.txt", 1500),
+        ("data/ff1024en-{}.txt", 1000),
+        ("data/ff1536en-{}.txt", 700),
+        ("data/ff2048en-{}.txt", 500),
         ("data/rand1024en-{}.txt", 2000),
         ]
 
@@ -58,7 +66,7 @@ def exec_command(cmd):
                 universal_newlines=True)
     (stdout_data, stderr_data) = p.communicate()
     if stderr_data:
-        print(stderr_data)
+        print("ERROR:", stderr_data.split("\n")[-2])
     if stdout_data:
         print(stdout_data)
 
@@ -113,8 +121,13 @@ if opt.make_data_mode:
 def base62_decode(mod, input_data, output_file=None):
     d = mod.decode(input_data)
     if output_file:
-        with open(output_file, "rw") as fd:
-            fd.write(d)
+        dd = d
+        result = []
+        while dd > 0:
+            dd, mod = divmod(dd, 256)
+            result.append(mod)
+        with open(output_file, "wb") as fd:
+            fd.write(bytes(result[::-1]))
     else:
         print(d)
     return d
@@ -135,15 +148,16 @@ if opt.base_check_mode:
     print("## Initial check (very short data).")
     for cn in code_name:
         print(f"### Code: {cn}")
-        for test_msg in [ b"ab", b"abcd", bytes([0,1]), bytes([0,0,1]) ]:
+        for test_msg in [ b"ab", b"abcd", bytes([0xff,0xff]), bytes([0,1]), bytes([0,0,1]) ]:
             num = int.from_bytes(test_msg, "big")
             print(f"- Original data: {test_msg}")
             mod = import_module(f"base62{cn}")
             e = mod.encode(num)
-            print(f"Encoded string: {e}")
+            print(f"    + Encoded string: {e}")
             d = mod.decode(e)
-            print(f"Decoded number: {d}")
-            print(num == d)
+            print(f"    + Decoded number: {d}")
+            print(f"    + Decoded == Original: {num == d}")
+        print()
     exit(0)
 
 mod = import_module(f"base62{opt.code_name}")
