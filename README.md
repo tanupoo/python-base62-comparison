@@ -35,6 +35,8 @@ For example,
 % cmp decoded.dmp data/ff1024.dmp
 ```
 
+This combination looks the most effective.
+
 ## Why did I compare the codes ?
 
 I wanted a base62 binary encoder/decoder.
@@ -63,7 +65,7 @@ because the original binary size has been lost.
 After all, I decided to use Devid's [base58](https://github.com/keis/base58) code with a bit [modification](https://raw.githubusercontent.com/tanupoo/base58/baseany/base58/__init__.py).
 It can handle any type of base when you pass your alphabet.
 
-## BASE64 string for this measurement
+## BASE62 string for this measurement
 
 taken from wikipedia like below:
 
@@ -106,6 +108,7 @@ base62we.py
     s/base62_decode_i/decode/
 
 base62py.py
+    https://github.com/suminb/base62
 ```
 
 ## Initial check
